@@ -5,21 +5,21 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import com.alvarolongueira.availablevehicles.business.QueryAvailableVehiclesService;
+import com.alvarolongueira.availablevehicles.business.CalculateAvailableVehiclesService;
 
 @Configuration
 @EnableScheduling
 public class ScheduleService {
 
     @Autowired
-    private QueryAvailableVehiclesService queryAvailableVehiclesService;
+    private CalculateAvailableVehiclesService calculateAvailableVehiclesService;
 
     public ScheduleService() {
 
     }
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 1000)   //TODO change to 60000
     public void scheduleQueryAvailableVehicles() {
-        this.queryAvailableVehiclesService.checkAvailability();
+        this.calculateAvailableVehiclesService.checkAvailability();
     }
 }

@@ -1,6 +1,6 @@
 package com.alvarolongueira.availablevehicles.business;
 
-public interface QueryAvailableVehiclesService {
+public interface CalculateAvailableVehiclesService {
 
     void checkAvailability();
 

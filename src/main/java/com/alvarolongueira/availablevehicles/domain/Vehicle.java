@@ -1,6 +1,7 @@
 package com.alvarolongueira.availablevehicles.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.Getter;
 
@@ -9,7 +10,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class Vehicle {
 
-    private long id;
+    private String uniqueId;
 
     private String name;
 
@@ -19,6 +20,7 @@ public class Vehicle {
 
     private String companyId;
 
-    private boolean available;
+    @Builder.Default
+    private boolean available = true;
 
 }
