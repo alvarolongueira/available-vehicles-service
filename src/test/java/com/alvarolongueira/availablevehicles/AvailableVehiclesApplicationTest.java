@@ -10,5 +10,7 @@ public class AvailableVehiclesApplicationTest {
 
     @Test
     public void contextLoads() {
+
     }
+    
 }
