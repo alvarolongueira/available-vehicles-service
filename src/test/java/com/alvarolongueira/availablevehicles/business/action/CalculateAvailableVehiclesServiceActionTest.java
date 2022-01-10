@@ -40,9 +40,14 @@ public class CalculateAvailableVehiclesServiceActionTest {
 
     @Test
     public void no_exists_then_create_as_available() {
+        //Repository
         Mockito
                 .when(this.entityManager.find(MockFactory.UNIQUE_ID_A1))
                 .thenReturn(Optional.empty());
+        Mockito
+                .when(this.entityManager.findAllAvailable())
+                .thenReturn(this.getSet());
+        //Provider
         Mockito
                 .when(this.provider.getVehicles())
                 .thenReturn(this.getSet(MockFactory.AVAILABLE_VEHICLE_A1));
@@ -50,14 +55,19 @@ public class CalculateAvailableVehiclesServiceActionTest {
         this.service.checkAvailability();
 
         Mockito.verify(this.entityManager, Mockito.times(1)).find(MockFactory.UNIQUE_ID_A1);
-        Mockito.verify(this.entityManager, Mockito.times(1)).save(MockFactory.AVAILABLE_VEHICLE_A1);
+        Mockito.verify(this.entityManager, Mockito.times(1)).insert(MockFactory.AVAILABLE_VEHICLE_A1);
     }
 
     @Test
     public void no_available_to_available() {
+        //Repository
         Mockito
                 .when(this.entityManager.find(MockFactory.UNIQUE_ID_A1))
-                .thenReturn(Optional.empty());
+                .thenReturn(Optional.of(MockFactory.NO_AVAILABLE_VEHICLE_A1));
+        Mockito
+                .when(this.entityManager.findAllAvailable())
+                .thenReturn(this.getSet(MockFactory.NO_AVAILABLE_VEHICLE_A1));
+        //Provider
         Mockito
                 .when(this.provider.getVehicles())
                 .thenReturn(this.getSet(MockFactory.AVAILABLE_VEHICLE_A1));
@@ -70,41 +80,69 @@ public class CalculateAvailableVehiclesServiceActionTest {
 
     @Test
     public void available_to_no_available_with_empty_search() {
+        //Repository
         Mockito
-                .when(this.entityManager.find(MockFactory.UNIQUE_ID_A1))
-                .thenReturn(Optional.of(MockFactory.AVAILABLE_VEHICLE_A1));
+                .when(this.entityManager.findAllAvailable())
+                .thenReturn(this.getSet(MockFactory.AVAILABLE_VEHICLE_A1));
+        //Provider
         Mockito
                 .when(this.provider.getVehicles())
                 .thenReturn(this.getSet());
 
         this.service.checkAvailability();
 
-        Mockito.verify(this.entityManager, Mockito.times(1)).find(MockFactory.UNIQUE_ID_A1);
         Mockito.verify(this.entityManager, Mockito.times(1)).updateAvailability(MockFactory.UNIQUE_ID_A1, false);
     }
 
     @Test
-    public void available_to_no_available_with_others() {
+    public void available_to_no_available_with_more_in_the_list() {
+        //Repository
         Mockito
-                .when(this.entityManager.find(MockFactory.UNIQUE_ID_A1))
-                .thenReturn(Optional.of(MockFactory.AVAILABLE_VEHICLE_A1));
+                .when(this.entityManager.findAllAvailable())
+                .thenReturn(this.getSet(MockFactory.AVAILABLE_VEHICLE_A1));
+        //Provider
         Mockito
                 .when(this.provider.getVehicles())
                 .thenReturn(this.getSet(MockFactory.AVAILABLE_VEHICLE_B2));
 
         this.service.checkAvailability();
 
-        Mockito.verify(this.entityManager, Mockito.times(1)).find(MockFactory.UNIQUE_ID_A1);
         Mockito.verify(this.entityManager, Mockito.times(1)).updateAvailability(MockFactory.UNIQUE_ID_A1, false);
     }
 
-    public void error_database_only_rollback_that() {
+    @Test
+    public void already_available_do_nothing() {
+        //Repository
+        Mockito
+                .when(this.entityManager.find(MockFactory.UNIQUE_ID_A1))
+                .thenReturn(Optional.of(MockFactory.AVAILABLE_VEHICLE_A1));
+        Mockito
+                .when(this.entityManager.findAllAvailable())
+                .thenReturn(this.getSet(MockFactory.AVAILABLE_VEHICLE_A1));      //Provider
+        Mockito
+                .when(this.provider.getVehicles())
+                .thenReturn(this.getSet(MockFactory.AVAILABLE_VEHICLE_A1));
+
+        this.service.checkAvailability();
+
+        Mockito.verify(this.entityManager, Mockito.times(1)).find(MockFactory.UNIQUE_ID_A1);
+        Mockito.verify(this.entityManager, Mockito.times(0)).insert(Mockito.any());
+        Mockito.verify(this.entityManager, Mockito.times(0)).updateAvailability(Mockito.anyString(), Mockito.anyBoolean());
+    }
+
+    @Test
+    public void error_database_only_rollback_first() {
+        //Repository
         Mockito
                 .when(this.entityManager.find(MockFactory.UNIQUE_ID_A1))
                 .thenReturn(Optional.of(MockFactory.NO_AVAILABLE_VEHICLE_A1));
         Mockito
+                .when(this.entityManager.findAllAvailable())
+                .thenReturn(this.getSet(MockFactory.NO_AVAILABLE_VEHICLE_A1));
+        Mockito
                 .when(this.entityManager.find(MockFactory.UNIQUE_ID_B2))
                 .thenReturn(Optional.of(MockFactory.NO_AVAILABLE_VEHICLE_B2));
+        //Provider
         Mockito
                 .when(this.provider.getVehicles())
                 .thenReturn(this.getSet(MockFactory.AVAILABLE_VEHICLE_A1, MockFactory.AVAILABLE_VEHICLE_B2));
@@ -123,6 +161,7 @@ public class CalculateAvailableVehiclesServiceActionTest {
 
     @Test(expected = ProviderNotAvailableException.class)
     public void error_query_external_service() {
+        //Provider
         Mockito
                 .when(this.provider.getVehicles())
                 .thenThrow(new ProviderNotAvailableException(""));
