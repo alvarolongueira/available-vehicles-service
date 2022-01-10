@@ -1,7 +1,7 @@
 package com.alvarolongueira.availablevehicles.controller;
 
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,11 +14,12 @@ import com.alvarolongueira.availablevehicles.controller.response.FindAllAvailabl
 import com.alvarolongueira.availablevehicles.controller.response.VehicleResponse;
 import com.alvarolongueira.availablevehicles.mock.MockFactory;
 import com.alvarolongueira.availablevehicles.repository.database.VehicleEntityRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles(profiles = "test")
 public class AvailableVehiclesControllerTest {
+
+    private final String MAIN_URL = "/available/";
 
     @Autowired
     private AvailableVehiclesController controller;
@@ -29,13 +30,17 @@ public class AvailableVehiclesControllerTest {
     @Autowired
     private TestRestTemplate template;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-
-    @Before
+    @BeforeEach
     public void setUp() {
-        this.repository.deleteById(MockFactory.UNIQUE_ID_A1);
-        this.repository.deleteById(MockFactory.UNIQUE_ID_B2);
-        this.repository.deleteById(MockFactory.UNIQUE_ID_C3);
+        if (this.repository.existsById(MockFactory.UNIQUE_ID_A1)) {
+            this.repository.deleteById(MockFactory.UNIQUE_ID_A1);
+        }
+        if (this.repository.existsById(MockFactory.UNIQUE_ID_B2)) {
+            this.repository.deleteById(MockFactory.UNIQUE_ID_B2);
+        }
+        if (this.repository.existsById(MockFactory.UNIQUE_ID_C3)) {
+            this.repository.deleteById(MockFactory.UNIQUE_ID_C3);
+        }
 
         this.repository.save(MockFactory.ENTITY_AVAILABLE_A1);
         this.repository.save(MockFactory.ENTITY_NO_AVAILABLE_B2);
@@ -46,12 +51,12 @@ public class AvailableVehiclesControllerTest {
     public void find_two_vehicles() throws Exception {
         //check context
         Assert.assertNotNull(this.controller);
-        ResponseEntity<String> responseEntity = this.template.getForEntity("/", String.class);
-        Assert.assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        ResponseEntity<FindAllAvailableResponse> responseEntityAll = this.template.getForEntity(this.MAIN_URL, FindAllAvailableResponse.class);
+
+        Assert.assertEquals(HttpStatus.OK, responseEntityAll.getStatusCode());
 
         //find available
-        FindAllAvailableResponse response = this.objectMapper.readValue(responseEntity.getBody(), FindAllAvailableResponse.class);
-
+        FindAllAvailableResponse response = responseEntityAll.getBody();
         Assert.assertEquals(2, response.getVehicles().size());
         boolean existsA1 = response.getVehicles().stream().anyMatch(value -> MockFactory.UNIQUE_ID_A1.equals(value.getUniqueId()));
         boolean existsC3 = response.getVehicles().stream().anyMatch(value -> MockFactory.UNIQUE_ID_C3.equals(value.getUniqueId()));
@@ -60,8 +65,8 @@ public class AvailableVehiclesControllerTest {
         Assert.assertTrue(existsC3);
 
         //find no available
-        ResponseEntity<VehicleResponse> responseVehicle = this.template.getForEntity("/" + MockFactory.UNIQUE_ID_C3, VehicleResponse.class);
-        VehicleResponse vehicle = this.objectMapper.readValue(responseEntity.getBody(), VehicleResponse.class);
+        ResponseEntity<VehicleResponse> responseEntity = this.template.getForEntity(this.MAIN_URL + MockFactory.UNIQUE_ID_C3, VehicleResponse.class);
+        VehicleResponse vehicle = responseEntity.getBody();
         Assert.assertEquals(MockFactory.UNIQUE_ID_C3, vehicle.getUniqueId());
     }
 

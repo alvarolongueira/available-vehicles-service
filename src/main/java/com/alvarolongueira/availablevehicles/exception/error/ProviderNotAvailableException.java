@@ -1,4 +1,6 @@
-package com.alvarolongueira.availablevehicles.exception;
+package com.alvarolongueira.availablevehicles.exception.error;
+
+import com.alvarolongueira.availablevehicles.exception.AvailableVehiclesServiceException;
 
 public class ProviderNotAvailableException extends AvailableVehiclesServiceException {
 

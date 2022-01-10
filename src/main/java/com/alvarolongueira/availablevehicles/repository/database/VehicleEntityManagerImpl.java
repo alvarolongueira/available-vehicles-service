@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.alvarolongueira.availablevehicles.domain.Vehicle;
-import com.alvarolongueira.availablevehicles.exception.DatabaseServiceException;
+import com.alvarolongueira.availablevehicles.exception.error.DatabaseServiceException;
 import com.alvarolongueira.availablevehicles.repository.VehicleEntityManager;
 import com.alvarolongueira.availablevehicles.repository.entity.VehicleEntity;
 

@@ -18,7 +18,7 @@ public class ScheduleService {
 
     }
 
-    @Scheduled(fixedDelay = 1000)   //TODO change to 60000
+    @Scheduled(fixedDelay = 60000)
     public void scheduleQueryAvailableVehicles() {
         this.calculateAvailableVehiclesService.checkAvailability();
     }

@@ -15,8 +15,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import com.alvarolongueira.availablevehicles.business.CalculateAvailableVehiclesService;
 import com.alvarolongueira.availablevehicles.domain.Vehicle;
-import com.alvarolongueira.availablevehicles.exception.DatabaseServiceException;
-import com.alvarolongueira.availablevehicles.exception.ProviderNotAvailableException;
+import com.alvarolongueira.availablevehicles.exception.error.DatabaseServiceException;
+import com.alvarolongueira.availablevehicles.exception.error.ProviderNotAvailableException;
 import com.alvarolongueira.availablevehicles.mock.MockFactory;
 import com.alvarolongueira.availablevehicles.provider.QueryAvailableVehicleProvider;
 import com.alvarolongueira.availablevehicles.repository.VehicleEntityManager;
